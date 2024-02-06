@@ -1,6 +1,7 @@
 # Currency Converter API
 
-This is a simple currency converter API that uses the [Monobank Public API](https://api.monobank.ua/bank/currency) to get the currency conversion rates. It also utilizes Redis to cache the currency rates for 1 hour.
+This is a simple currency converter API that uses the [Monobank Public API](https://api.monobank.ua/docs) to get the currency conversion rates. 
+It also utilizes Redis to cache the currency rates for 1 hour.
 
 ## Request Sample
 ```bash
