@@ -1,34 +1,44 @@
 const express = require('express');
 const morgan = require('morgan');
-const { convert } = require('./services/converter');
+const process = require('process');
+const { redisClient } = require('./config/redisClient');
 
 const app = express();
 app.use(morgan('dev'));
 app.use(express.json());
+
+//Routes
+const indexRoutes = require("./routes/indexRoutes");
+app.use("/", indexRoutes);
+
 // listen for requests
-app.listen(3000);
+const server = app.listen(3000);
 
-app.get('/', (req, res) => {
-  res.send('This is a currency converter API');
-});
+process.on('SIGINT', cleanup);
+process.on('SIGTERM', cleanup);
 
-app.post('/convert', async (req, res) => {
-  const { fromCurrency, toCurrency, amount } = req.body;
+function cleanup() {
+  console.log('Starting cleanup.');
+  // Stop the server
+  server.close((err) => {
+    if (err) {
+      console.error('Error stopping server:', err);
+    } else {
+      console.log('Server stopped.');
+      // Close the Redis client
+      redisClient.quit((err) => {
+        if (err) {
+          console.error('Error closing Redis connection:', err);
+        } else {
+          console.log('Redis connection closed.');
+        }
+      });
+      process.exit(0);
+    }
+  });
+}
 
-  if (!fromCurrency || !toCurrency || !amount) {
-    return res.status(400).json({ error: 'Invalid request. Please provide fromCurrency, toCurrency, and amount.' });
-  }
-
-  // TODO: Validate the currency codes
-
-  // Convert the currency
-  const convertedAmount = await convert(fromCurrency, toCurrency, amount);
-
-  // Return the converted amount
-  res.json({ fromCurrency, toCurrency, amount, convertedAmount });
-});
-
-
-app.use((req, res) => {
-  res.status(404).render('404', { title: '404' });
+process.on('unhandledRejection', (reason, promise) => {
+  console.log('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
 });
