@@ -14,10 +14,6 @@ redisClient.on('error', function (err) {
   console.log('Redis client error: ' + err);
 });
 
-(async () => {
-  redisClient.connect();
-})();
-
 module.exports = {
   redisClient
 };

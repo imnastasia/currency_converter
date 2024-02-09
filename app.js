@@ -11,34 +11,42 @@ app.use(express.json());
 const indexRoutes = require("./routes/indexRoutes");
 app.use("/", indexRoutes);
 
-// listen for requests
-const server = app.listen(3000);
+(async () => {
+  await redisClient.connect();
 
-process.on('SIGINT', cleanup);
-process.on('SIGTERM', cleanup);
+  const server = app.listen(3000)
+  process.on('SIGINT', cleanup);
+  process.on('SIGTERM', cleanup);
 
-function cleanup() {
-  console.log('Starting cleanup.');
-  // Stop the server
-  server.close((err) => {
-    if (err) {
-      console.error('Error stopping server:', err);
-    } else {
-      console.log('Server stopped.');
-      // Close the Redis client
-      redisClient.quit((err) => {
+  function cleanup() {
+    setTimeout(() => {
+      console.log('Starting cleanup.');
+      // Stop the server
+      server.close((err) => {
         if (err) {
-          console.error('Error closing Redis connection:', err);
+          console.error('Error stopping server:', err);
         } else {
-          console.log('Redis connection closed.');
+          console.log('Server stopped.');
+          // Close the Redis client
+          redisClient.quit((err) => {
+            if (err) {
+              console.error('Error closing Redis connection:', err);
+            } else {
+              console.log('Redis connection closed.');
+            }
+          });
+          process.exit(0);
         }
       });
-      process.exit(0);
-    }
-  });
-}
+    }, 1000);
+  }
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.log('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
-});
+  process.on('unhandledRejection', (reason, promise) => {
+    console.log('Unhandled Rejection at:', promise, 'reason:', reason);
+    process.exit(1);
+  });
+})();
+
+//1. Count the number of tries
+//2. Add a delay of 10 second
+//3. on the second try, it should return close the server and close the redis connection
