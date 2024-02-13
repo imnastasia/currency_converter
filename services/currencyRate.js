@@ -1,9 +1,13 @@
 const { fetchCurrencyData } = require('./currencyData');
-const { currencyCodes } = require('./currencyCodes');
+const { currencyCodes } = require('../constants/currencyCodes');
 
 async function getCurrencyRate(fromCurrency, toCurrency) {
   try {
-    const currencyData = await fetchCurrencyData();
+    const { currencyData, error } = await fetchCurrencyData();
+    if (error) {
+      return { rate: null, method: null, error: error };
+    }
+
     const fromCurrencyNumber = await getCurrencyNumber(fromCurrency);
     const toCurrencyNumber = await getCurrencyNumber(toCurrency);
 
@@ -19,17 +23,15 @@ async function getCurrencyRate(fromCurrency, toCurrency) {
         return rate; // Return the rate once rateSell is assigned
       }
     });
-    console.log('rate', rate);
-    return [rate, method];
+    return { rate: rate, method: method, error: null };
   } catch (error) {
     console.error('Error getting currency rate:', error);
-    throw error;
+    return { rate: null, method: null, error: 'Error getting currency rate' };
   }
 }
 
 async function getCurrencyNumber(currencyCode) {
   const codes = currencyCodes;
-  console.log(codes[1]);
   const currency = codes.find((currency) => currency.code === currencyCode);
   return parseInt(currency.number, 10);
 }

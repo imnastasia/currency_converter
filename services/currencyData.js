@@ -1,19 +1,12 @@
 const axios = require('axios');
-const { createClient } = require('redis');
-
-const redisClient = createClient();
-
-redisClient.on('error', err => console.log('Redis Client Error', err));
-
-redisClient.connect();
+const { redisClient } = require('../config/redisClient');
 
 async function fetchCurrencyData() {
-  console.log('getting currency data');
   try {
     // Check if the data is already cached in Redis
     const cachedData = await getCurrencyDataFromCache();
     if (cachedData) {
-      return cachedData;
+      return { currencyData: cachedData, error: null };
     }
 
     const response = await axios.get('https://api.monobank.ua/bank/currency');
@@ -21,10 +14,10 @@ async function fetchCurrencyData() {
     // Cache the data in Redis
     await cacheCurrencyData(currencyData);
 
-    return currencyData;
+    return { currencyData, error: null };
   } catch (error) {
     console.error('Error fetching currency data:', error);
-    throw error;
+    return { currencyData: null, error: 'Error fetching currency data' };
   }
 }
 
