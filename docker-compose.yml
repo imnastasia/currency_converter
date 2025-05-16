@@ -10,12 +10,27 @@ services:
       - REDIS_URL=redis://redis:6379
     networks:
       - app-network
+    develop:
+      watch:
+        - action: sync
+          path: /
+          target: /app/
+          ignore:
+            - node_modules/
   redis:
-    image: redis:latest
+    image: redis:8.0.1
+    volumes:
+      - redis:/data
     ports:
-      - "6379:6379"
+      - '6380:6379'
+    healthcheck:
+      test: redis-cli ping
+      interval: 1s
+      timeout: 3s
+      retries: 30
     networks:
       - app-network
-
+volumes:
+  redis:
 networks:
   app-network:

@@ -37,7 +37,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
     "fromCurrency": "USD",
     "toCurrency": "EUR",
     "amount": 100
-}' http://localhost:3000/convert
+}' http://localhost:3000/converter/convert
 ```
 
 ## Success Response Sample
@@ -56,7 +56,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
     "fromCurrency": "USD",
     "toCurrency": "ABC",
     "amount": 100
-}' http://localhost:3000/convert
+}' http://localhost:3000/converter/convert
 ```
 
 ## Error Response Sample
