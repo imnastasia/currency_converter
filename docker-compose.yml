@@ -34,3 +34,4 @@ volumes:
   redis:
 networks:
   app-network:
+    driver: bridge
