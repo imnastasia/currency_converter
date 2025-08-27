@@ -1,4 +1,4 @@
-# Use the official Node.js 16 image as the base image
+# Use the official Node.js 23 image as the base image
 FROM node:23.11.0-slim
 
 # Set the working directory inside the container
